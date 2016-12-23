@@ -39,6 +39,12 @@ void generateStream()
 	{
 		flag = false;
 		count = 0;
+		tmp = float(rand()) / RAND_MAX;
+		
+		if (tmp > p)
+		{
+			flag = true;
+		}
 
 		while (!flag)
 		{
@@ -246,7 +252,10 @@ void getStatistics(vector<unsigned char> stream)
 			
 	for (int i = 0; i < stream.size(); i++)
 	{
+		if (stream[i] < maxSizeOfArray)
+		{
 			statistics[stream[i]]++;
+		}
 	}
 
 	for (int i = 0; i < maxSizeOfArray; i++)
@@ -265,7 +274,7 @@ void getStatistics(vector<unsigned char> stream)
 	for (int i = 0; i < 20; i++)
 	{
 		pTeor = pow(p, (float(i))) * (1 - p);
-		pPr = (float)statistics[i + 1] / stream.size();
+		pPr = (float)statistics[i] / stream.size();
 		printf("%d\t%f\t%f\n", i, pTeor, pPr);
 	}
 
@@ -312,9 +321,9 @@ int main()
 				printf("Erorr dif = %d/n", dif);
 			}
 		}
-
 		printf("Code rate for non-optimal parametr M \t%f\n", float(encodingStream.size()) / sizeStream);
 	}
+
 	//////////////////////////BEST PARAMETR M///////////////////////////////
 	{
 		vector<bool> encodingStream;
@@ -340,7 +349,6 @@ int main()
 				printf("Erorr dif = %d/n", dif);
 			}
 		}
-
 		printf("Code rate for best parametr M \t%f\n", float(encodingStream.size()) / sizeStream);
 	}
 	
@@ -348,3 +356,6 @@ int main()
 	system("pause");
 	return 0;
 }
+
+
+
