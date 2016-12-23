@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
@@ -230,9 +231,50 @@ void writeBits(char *nameStreamFile, vector <bool> &encodingStream)
 	fclose(file);
 }
 
+void getStatistics(vector<unsigned char> stream)
+{
+	float h = 0;
+	int maxSizeOfArray = 1000;
+	int *statistics = new int[maxSizeOfArray];
+	float pTeor;
+	float pPr;
+	
+	for (int i = 0; i < maxSizeOfArray; i++)
+	{
+		statistics[i] = 0;
+	}
+			
+	for (int i = 0; i < stream.size(); i++)
+	{
+			statistics[stream[i]]++;
+	}
+
+	for (int i = 0; i < maxSizeOfArray; i++)
+	{
+		if (statistics[i] > 0)
+		{
+			float p = (float)statistics[i] / stream.size();
+			h += p * log2(p);
+		}
+	}
+
+	printf("Entropy before coding\t%f\n", -h);
+
+	printf("N\tpTeoria\t\tpPr\n");
+
+	for (int i = 0; i < 20; i++)
+	{
+		pTeor = pow(p, (float(i))) * (1 - p);
+		pPr = (float)statistics[i + 1] / stream.size();
+		printf("%d\t%f\t%f\n", i, pTeor, pPr);
+	}
+
+	delete[] statistics;
+}
+
 int main()
 {
-	int m = 2; // not optimal coding parametr
+	int m = 3; // not optimal coding parametr
 	int mBest = 0; // best coding parametr
 
 	vector <unsigned char> stream;
@@ -243,11 +285,15 @@ int main()
 	//read stream from file
 	readStremFromFile(nameStreamFile, stream);
 	
+	getStatistics(stream);
+
 	//////////////////////////NOT OPTIMAL PARAMETR M///////////////////////////////
 	
 	{
 		vector<bool> encodingStream;
 		vector<unsigned char> decodingStream;
+		
+		printf("non-optimal parametr M - %d\n", m);
 
 		//coding and write 
 		getCodingStream(stream, encodingStream, m);
@@ -266,6 +312,8 @@ int main()
 				printf("Erorr dif = %d/n", dif);
 			}
 		}
+
+		printf("Code rate for non-optimal parametr M \t%f\n", float(encodingStream.size()) / sizeStream);
 	}
 	//////////////////////////BEST PARAMETR M///////////////////////////////
 	{
@@ -273,7 +321,7 @@ int main()
 		vector<unsigned char> decodingStream;
 		
 		mBest = getBestM(p);
-		printf("oprimal parametr M - %d\n", mBest);
+		printf("best parametr M - %d\n", mBest);
 
 		//coding and write 
 		getCodingStream(stream, encodingStream, mBest);
@@ -292,6 +340,8 @@ int main()
 				printf("Erorr dif = %d/n", dif);
 			}
 		}
+
+		printf("Code rate for best parametr M \t%f\n", float(encodingStream.size()) / sizeStream);
 	}
 	
 	
